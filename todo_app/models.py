@@ -6,6 +6,7 @@ import datetime as dt
 
 # Create your models here.
 
+
 class Task(models.Model):
     id = models.UUIDField(
         primary_key=True,
