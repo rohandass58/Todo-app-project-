@@ -24,7 +24,7 @@ class Task(models.Model):
         max_length=100,
         null=False,
     )
-    task_description = models.CharField(
+    task_description = models.TextField(
         max_length=300,
         null=True,
         blank=True,

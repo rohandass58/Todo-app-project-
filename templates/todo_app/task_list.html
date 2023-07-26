@@ -2,14 +2,52 @@
 {% block content %}
 <style>
     /* Style for the datetime section */
-    #datetime {
-        margin-bottom: 20px;
-        font-size: 18px;
-        color: #4b5156;
-        padding-left: 40px;
-    }
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
 
-    /* Style for the task items wrapper */
+/* Container style */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Style for the datetime section */
+#datetime {
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #4b5156;
+}
+
+/* Style for the task date header */
+h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+/* Style for the task items wrapper */
+.task-items-wrapper {
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Responsive styles for task items */
+@media (max-width: 768px) {
+  .task-items-wrapper {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
     .task-items-wrapper {
         max-height: 700px; /* Set a maximum height for the task list */
         overflow-y: auto; /* Add vertical scrollbar if content exceeds the maximum height */
@@ -25,14 +63,150 @@
         }
     }
 
-    .task-description {
-        display: none;
-        margin-top: 10px;
-    }
+.task-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
 
-    .task-wrapper.active .task-description {
-        display: block;
-    }
+/* Style for the description button */
+.description-button {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.description-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Style for the delete link */
+.delete-link {
+  background-color: #dc3545;
+  color: white;
+  padding: 15px;
+  margin:30px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.delete-link:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+.delete-link:active {
+  background-color: #bd2130;
+  transform: translateY(0);
+}
+
+/* Style for the delete icon */
+.delete-icon {
+  width: 18px;
+  height: 18px;
+  background-color: #fff;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+/* Additional style for the task description */
+.task-description p {
+  margin-bottom: 0;
+}
+
+/* Updated style for task wrapper */
+
+/* Style for the task controls on hover */
+.task-wrapper:hover .task-controls {
+  opacity: 1;
+  transform: translateY(-5px);
+}
+
+/* Style for the task controls on active */
+.task-wrapper.active .task-controls {
+  opacity: 1;
+  transform: translateY(-5px);
+}
+
+/* Style for the task wrapper */
+.task-wrapper {
+position: relative;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  transition: border-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.task-wrapper:hover {
+  border-color: #007bff;
+  transform: translateY(-2px);
+}
+
+/* Style for completed tasks */
+.task-wrapper.completed {
+  background-color: #f0f0f0;
+}
+
+/* Style for task icons */
+.task-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+/* Task incomplete icon */
+.task-incomplete-icon {
+  background-color: #ffcc00;
+}
+
+/* Task complete icon */
+.task-complete-icon {
+  background-color: #4caf50;
+}
+
+/* Style for task title link */
+.task-title a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.task-title a:hover {
+  text-decoration: underline;
+}
+
+.task-description {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.2s ease-in-out;
+  background-color: #ffffff; /* Update background color to white */
+}
+
+.task-wrapper.active .task-description {
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+
+
+
+
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -48,12 +222,11 @@
 </div>
 
 <div id="tasklist" class="task-items-wrapper">
-
+    <!-- ... Your existing task listing ... -->
     {% if tasks|length > 0 %}
     <a id="add-link" href="{% url 'task-create' %}">&#x2b;</a>
     <b><div id="datetime"></div></b>
     <hr>
-
     {% endif %}
 
     {% with current_date="" %}
@@ -65,24 +238,29 @@
     {% endif %}
     <h3>{{ task.task_due_date|date:"F j, Y" }}</h3>
     <div>
-        {% endif %}
-        <div class="task-wrapper">
-            <div class="task-title">
-                {% if task.task_completed %}
-                <div class="task-complete-icon"></div>
-                <i><s><a href="{% url 'task_update' task.id %}">{{task}}</a></s></i>
-                {% else %}
-                <div class="task-incomplete-icon"></div>
-                <a href="{% url 'task_update' task.id %}">{{task}}</a>
-                {% endif %}
-            </div>
-            <div class="task-controls">
-                <a class="delete-link" href="{% url 'task_delete' task.id %}">&#215;</a>
-            </div>
+    {% endif %}
+    <div class="task-wrapper">
+        <div class="task-title">
+            {% if task.task_completed %}
+            <div class="task-complete-icon"></div>
+            <i><s><a href="{% url 'task_update' task.id %}">{{task}}</a></s></i>
+            {% else %}
+            <div class="task-incomplete-icon"></div>
+            <a href="{% url 'task_update' task.id %}">{{task}}</a>
+            {% endif %}
         </div>
-        {% with current_date=task.task_due_date %}
-        {% endwith %}
-        {% endfor %}
+        <div class="task-controls">
+            <a class="delete-link" href="{% url 'task_delete' task.id %}">&#215;</a>
+            <button class="description-button" onclick="toggleTaskDescription(this)">View Description</button>
+
+        </div>
+        <div class="task-description">
+            {{ task.task_description }}
+        </div>
+    </div>
+    {% with current_date=task.task_due_date %}
+    {% endwith %}
+    {% endfor %}
     </div>
     {% endwith %}
 </div>
@@ -102,6 +280,14 @@
         ghostClass: 'dropArea',
         chosenClass: 'selectedTask',
     });
+
+    // Function to show/hide task description on button click
+    function toggleTaskDescription(button) {
+        const taskWrapper = button.parentElement.parentElement;
+        const description = taskWrapper.querySelector(".task-description");
+        taskWrapper.classList.toggle("active");
+        description.style.display = (description.style.display === "block") ? "none" : "block";
+    }
 
     function reordering() {
         const rows = document.getElementsByClassName("task-wrapper");
