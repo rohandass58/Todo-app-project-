@@ -1,5 +1,30 @@
-{% extends 'todo_app/main.html' %} 
+{% extends 'todo_app/main.html' %}
 {% block content %}
+<style>
+    /* Style for the datetime section */
+    #datetime {
+        margin-bottom: 20px;
+        font-size: 18px;
+        color: #4b5156;
+        padding-left: 40px;
+    }
+
+    /* Style for the task items wrapper */
+    .task-items-wrapper {
+        max-height: 700px; /* Set a maximum height for the task list */
+        overflow-y: auto; /* Add vertical scrollbar if content exceeds the maximum height */
+        padding-right: 10px; /* Add some padding to the right to ensure scrollbar visibility */
+    }
+
+    /* Responsive styles for task items */
+    @media (max-width: 768px) {
+        .task-items-wrapper {
+            max-height: none; /* Remove the maximum height for smaller screens */
+            overflow-y: visible; /* Show all content on smaller screens */
+            padding-right: 0; /* Remove the padding on smaller screens */
+        }
+    }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <div class="header-bar">
@@ -13,51 +38,49 @@
     <a href="{% url 'login' %}">Login</a> {% endif %}
 </div>
 
+<div id="tasklist" class="task-items-wrapper">
 
-{% comment %} <div id="search-add-wrapper">
-    <form method="GET" style="display: flex;">
-        <input type='text' name='search-area' placeholder="Search your task" value="{{search_input}}">
-        <input class="button" type="submit" value='Search'>
-    </form>
- {% endcomment %}
-
- <div id="tasklist" class="task-items-wrapper">
     {% if tasks|length > 0 %}
     <a id="add-link" href="{% url 'task-create' %}">&#x2b;</a>
+    <b><div id="datetime"></div></b>
+    <hr>
+
     {% endif %}
-</div> 
 
+    {% with current_date="" %}
+    {% for task in tasks %}
+    {% if task.task_due_date != current_date %}
+    {% if not forloop.first %}
+    </div>
+    {% endif %}
+    <h3>{{ task.task_due_date|date:"F j, Y" }}</h3>
+    <div>
+        {% endif %}
+        <div class="task-wrapper" data-position="{{task.task_due_date}}">
+            <div class="task-title">
+                {% if task.task_completed %}
+                <div class="task-complete-icon"></div>
+                <i><s><a href="{% url 'task_update' task.id %}">{{task}}</a></s></i>
+                {% else %}
+                <div class="task-incomplete-icon"></div>
+                <a href="{% url 'task_update' task.id %}">{{task}}</a>
+                {% endif %}
+            </div>
+            <div class="task-controls">
+                <a class="delete-link" href="{% url 'task_delete' task.id %}">&#215;</a>
+            </div>
+        </div>
+        {% with current_date=task.task_due_date %}
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% endwith %}
+</div>
 
-<!-- Hidden form. Form submits new item positions -->
 <form style="display: none;" id="reorderForm" method="post" action="{% url 'task-reorder' %}">
     {% csrf_token %}
     <input type="hidden" id="positionInput" name="position">
 </form>
-
-
-<div id="tasklist" class="task-items-wrapper">
-    {% for task in tasks %}
-    <div class="task-wrapper" data-position="{{task.pk}}">
-        <div class="task-title">
-            {% if task.task_completed %}
-            <div class="task-complete-icon"></div>
-            <i><s><a href="{% url 'task_update' task.id %}">{{task}}</a></s></i> {% else %}
-            <div class="task-incomplete-icon"></div>
-            <a href="{% url 'task_update' task.id %}">{{task}}</a> {% endif %}
-        </div>
-        <div class="task-controls">
-            <a class="delete-link" href="{% url 'task_delete' task.id %}">&#215;</a>
-            {% comment %} <span class="handle">&nbsp;&#10247;</span> {% endcomment %}
-        </div>
-    </div>
-
-    {% empty %}
-    <div style="text-align: center; padding-bottom: 10px; line-height: 1em;">
-        <h3>No new tasks are created.</h3>
-        <h3>Create a <a style="text-decoration: none; color: #e53935;" href="{% url 'task-create' %}">New task</a> ! </h3>
-    </div>
-    {% endfor %}
-</div>
 
 <script>
     var taskList = document.getElementById("tasklist");
@@ -68,7 +91,6 @@
         handle: '.handle',
         ghostClass: 'dropArea',
         chosenClass: 'selectedTask',
-
     });
 
     function reordering() {
@@ -82,7 +104,19 @@
         reorderForm.submit();
     }
 
-    document.ondrop = reordering
+    document.ondrop = reordering;
+
+    function updateDateTime() {
+        const datetimeDiv = document.getElementById("datetime");
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleDateString();
+        const formattedTime = currentDate.toLocaleTimeString();
+        datetimeDiv.innerHTML = `Today's Date: ${formattedDate} | Current Time: ${formattedTime}`;
+    }
+
+    // Update date and time every second
+    setInterval(updateDateTime, 1000);
+    updateDateTime(); // Call immediately to set initial value
 </script>
 
 {% endblock content %}

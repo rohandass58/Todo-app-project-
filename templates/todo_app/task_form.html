@@ -167,6 +167,57 @@
         background-color: #D45A49;
     }
 
+    .flatpickr-calendar {
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        border-radius: 5px;
+        font-family: 'Nunito', sans-serif;
+        z-index: 9999; /* Increase z-index to make sure it appears above other elements */
+    }
+
+    .flatpickr-days {
+        background-color: #F6F9FC;
+    }
+
+    .flatpickr-days .flatpickr-day {
+        color: #4b5156;
+    }
+
+    .flatpickr-day:hover,
+    .flatpickr-day.selected,
+    .flatpickr-day.selected.inRange,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+        background-color: #EB796F;
+        color: #fff;
+    }
+
+    .flatpickr-time {
+        background-color: #fff;
+    }
+
+    .flatpickr-time input {
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 5px;
+        width: 100%;
+    }
+
+    .flatpickr-confirm {
+        color: #EB796F;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .flatpickr-confirm:hover {
+        background-color: #D45A49;
+        color: #fff;
+    }
+
+
+
 </style>
 
 <div class="container">
@@ -178,5 +229,17 @@
         <input type="submit" value="Submit">
     </form>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    const currentDate = new Date(); // Get the current date and time
+
+    flatpickr('#id_task_due_date', {
+        enableTime: true,
+        dateFormat: 'Y-m-d H:i',
+        minDate: currentDate, // Set the minimum date and time to the present
+        // You can add more options here as per your requirements
+    });
+</script>
 
 {% endblock content %}
