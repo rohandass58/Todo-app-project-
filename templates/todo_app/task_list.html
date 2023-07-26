@@ -56,7 +56,7 @@
     <h3>{{ task.task_due_date|date:"F j, Y" }}</h3>
     <div>
         {% endif %}
-        <div class="task-wrapper" data-position="{{task.task_due_date}}">
+        <div class="task-wrapper">
             <div class="task-title">
                 {% if task.task_completed %}
                 <div class="task-complete-icon"></div>
